@@ -1,10 +1,23 @@
 package cn.hjf.lj.wsyt;
 
 public class Pronunciation {
+	public static final String QING = "qing";
+	public static final String ZHUO = "zhuo";
+	public static final String AO = "ao";
+
+	private String type;
 	private String ping;
 	private String pian;
 	private String roma;
 	private String audio;
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
 
 	public String getPing() {
 		return ping;
