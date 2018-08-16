@@ -11,10 +11,10 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/btn_next"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="next"
             android:text="下一个" />
 
         <Spinner
@@ -114,9 +114,9 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/btn_play"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="play"
         android:text="发音" />
 
     <cn.hjf.lj.wsyt.WriteView
@@ -126,9 +126,9 @@
         android:layout_weight="1" />
 
     <Button
+        android:id="@+id/btn_clear"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="clear"
         android:text="清除" />
 
 </LinearLayout>

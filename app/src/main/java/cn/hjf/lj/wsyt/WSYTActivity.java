@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
@@ -16,7 +17,6 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import cn.hjf.lj.R;
 import cn.hjf.lj.wsyt.data.PronunciationDataStore;
@@ -26,35 +26,63 @@ import cn.hjf.lj.wsyt.next.SequentialNextPro;
 
 public class WSYTActivity extends AppCompatActivity {
 
+	/**
+	 * 数据
+	 */
+	private PronunciationDataStore mPronunciationDataStore;
+	private List<Pronunciation> mData = new ArrayList<>();
 	private Pronunciation mCurrent;
 
-	private PronunciationDataStore mPronunciationDataStore;
-
-	private MediaPlayer mMediaPlayer = new MediaPlayer();
-
-	private WriteView mWriteView;
-
+	/**
+	 * 调度
+	 */
 	private NextPro mNextPro;
 
+	/**
+	 * 控件
+	 */
+	private WriteView mWriteView;
 	private Spinner mOrderSpinner;
 	private Spinner mTypeSpinner;
-
-	private List<Pronunciation> mData = new ArrayList<>();
-
 	private TextView mTvPing;
 	private TextView mTvPian;
 	private TextView mTvRoma;
 	private CheckBox mCbPing;
 	private CheckBox mCbPian;
 	private CheckBox mCbRoma;
+	private Button mBtnNext;
+	private Button mBtnPlay;
+	private Button mBtnClear;
+
+	/**
+	 * 发音
+	 */
+	private MediaPlayer mMediaPlayer = new MediaPlayer();
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_wsyt);
 
-		mPronunciationDataStore = new PronunciationDataStore(this);
+		initView();
 
+		mPronunciationDataStore = new PronunciationDataStore(this);
+	}
+
+	@Override
+	protected void onDestroy() {
+		mMediaPlayer.stop();
+		mMediaPlayer.release();
+
+		super.onDestroy();
+	}
+
+	/**
+	 * ***********************************************************************************************
+	 * ***********************************************************************************************
+	 */
+
+	private void initView() {
 		mWriteView = findViewById(R.id.write_view);
 		mOrderSpinner = findViewById(R.id.spn_order);
 		mTypeSpinner = findViewById(R.id.spn_type);
@@ -66,6 +94,31 @@ public class WSYTActivity extends AppCompatActivity {
 		mCbPing = findViewById(R.id.cb_ping);
 		mCbPian = findViewById(R.id.cb_pian);
 		mCbRoma = findViewById(R.id.cb_roma);
+
+		mBtnNext = findViewById(R.id.btn_next);
+		mBtnPlay = findViewById(R.id.btn_play);
+		mBtnClear = findViewById(R.id.btn_clear);
+
+		mBtnNext.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				renderNext();
+			}
+		});
+
+		mBtnPlay.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				play();
+			}
+		});
+
+		mBtnClear.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				clearWriteView();
+			}
+		});
 
 		mCbPing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
@@ -91,16 +144,13 @@ public class WSYTActivity extends AppCompatActivity {
 		mOrderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				if (position == 0 && !(mNextPro instanceof SequentialNextPro)) {
-					mNextPro = new SequentialNextPro(mData);
-					return;
-				}
-				if (position == 1 && !(mNextPro instanceof RandomNextPro)) {
-					mNextPro = new RandomNextPro(mData);
-					return;
+				if (position == 0) {
+					mNextPro = new SequentialNextPro();
+				} else if (position == 1) {
+					mNextPro = new RandomNextPro();
 				}
 
-				render();
+				changeConfig();
 			}
 
 			@Override
@@ -122,9 +172,7 @@ public class WSYTActivity extends AppCompatActivity {
 					mData = mPronunciationDataStore.getAo();
 				}
 
-				mNextPro.setData(mData);
-
-				render();
+				changeConfig();
 			}
 
 			@Override
@@ -132,39 +180,43 @@ public class WSYTActivity extends AppCompatActivity {
 
 			}
 		});
-
-		mNextPro = new SequentialNextPro(mPronunciationDataStore.getAll());
-
-		render();
 	}
 
-	@Override
-	protected void onDestroy() {
-		mMediaPlayer.stop();
-		mMediaPlayer.release();
+	/**
+	 * ***********************************************************************************************
+	 * ***********************************************************************************************
+	 */
 
-		super.onDestroy();
+	private void changeConfig() {
+		if (mNextPro != null && !mData.isEmpty()) {
+			mNextPro.setData(mData);
+			renderNext();
+		}
 	}
 
-	public void next(View view) {
-		render();
-	}
-
-	private void render() {
+	private void renderNext() {
 		mCurrent = mNextPro.next();
 
-		show();
+		if (mCurrent == null) {
+			return;
+		}
+
+		renderPronunciation();
 
 		clearWriteView();
 	}
 
-	private void show() {
+	private void renderPronunciation() {
 		mTvPing.setText(mCurrent.getPing());
 		mTvPian.setText(mCurrent.getPian());
 		mTvRoma.setText(mCurrent.getRoma());
 	}
 
-	public void play(View view) {
+	private void play() {
+		if (mCurrent == null) {
+			return;
+		}
+
 		try {
 			mMediaPlayer.reset();
 
@@ -181,10 +233,6 @@ public class WSYTActivity extends AppCompatActivity {
 			e.printStackTrace();
 		}
 
-	}
-
-	public void clear(View view) {
-		clearWriteView();
 	}
 
 	private void clearWriteView() {
