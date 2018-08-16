@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -34,6 +36,11 @@ public class WSYTActivity extends AppCompatActivity {
 
 	private NextPro mNextPro;
 
+	private Spinner mOrderSpinner;
+	private Spinner mTypeSpinner;
+
+	private List<Pronunciation> mData = new ArrayList<>();
+
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -43,6 +50,55 @@ public class WSYTActivity extends AppCompatActivity {
 
 		mTextView = findViewById(R.id.tv);
 		mWriteView = findViewById(R.id.write_view);
+		mOrderSpinner = findViewById(R.id.spn_order);
+		mTypeSpinner = findViewById(R.id.spn_type);
+
+		mOrderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				if (position == 0 && !(mNextPro instanceof SequentialNextPro)) {
+					mNextPro = new SequentialNextPro(mData);
+					return;
+				}
+				if (position == 1 && !(mNextPro instanceof RandomNextPro)) {
+					mNextPro = new RandomNextPro(mData);
+					return;
+				}
+
+				render();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+
+			}
+		});
+
+		mTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				if (position == 0) {
+					mData = mPronunciationDataStore.getAll();
+				} else if (position == 1) {
+					mData = mPronunciationDataStore.getQing();
+				} else if (position == 2) {
+					mData = mPronunciationDataStore.getZhuo();
+				} else if (position == 3) {
+					mData = mPronunciationDataStore.getAo();
+				}
+
+				mNextPro.setData(mData);
+
+				render();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+
+			}
+		});
+
+
 
 		mNextPro = new SequentialNextPro(mPronunciationDataStore.getAll());
 

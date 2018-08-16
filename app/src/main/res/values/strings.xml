@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">LearnJapanese</string>
+
+    <string-array name="type">
+        <item>全部</item>
+        <item>轻音</item>
+        <item>浊音</item>
+        <item>拗音</item>
+    </string-array>
+
+    <string-array name="order">
+        <item>顺序</item>
+        <item>随机</item>
+    </string-array>
 </resources>

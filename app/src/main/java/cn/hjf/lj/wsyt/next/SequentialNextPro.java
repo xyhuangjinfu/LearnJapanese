@@ -1,5 +1,6 @@
 package cn.hjf.lj.wsyt.next;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -11,7 +12,7 @@ public class SequentialNextPro implements NextPro {
 	private int mIndex = 0;
 
 	public SequentialNextPro(List<Pronunciation> pronunciationList) {
-		mPronunciationList = pronunciationList;
+		mPronunciationList = new ArrayList<>(pronunciationList);
 	}
 
 	@Override
@@ -22,5 +23,12 @@ public class SequentialNextPro implements NextPro {
 			mIndex = 0;
 		}
 		return p;
+	}
+
+	@Override
+	public void setData(List<Pronunciation> list) {
+		mPronunciationList.clear();
+		mPronunciationList.addAll(list);
+		mIndex = 0;
 	}
 }
