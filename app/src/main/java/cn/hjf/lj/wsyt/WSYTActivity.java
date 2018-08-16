@@ -8,6 +8,8 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -28,8 +30,6 @@ public class WSYTActivity extends AppCompatActivity {
 
 	private PronunciationDataStore mPronunciationDataStore;
 
-	private TextView mTextView;
-
 	private MediaPlayer mMediaPlayer = new MediaPlayer();
 
 	private WriteView mWriteView;
@@ -41,6 +41,13 @@ public class WSYTActivity extends AppCompatActivity {
 
 	private List<Pronunciation> mData = new ArrayList<>();
 
+	private TextView mTvPing;
+	private TextView mTvPian;
+	private TextView mTvRoma;
+	private CheckBox mCbPing;
+	private CheckBox mCbPian;
+	private CheckBox mCbRoma;
+
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,10 +55,38 @@ public class WSYTActivity extends AppCompatActivity {
 
 		mPronunciationDataStore = new PronunciationDataStore(this);
 
-		mTextView = findViewById(R.id.tv);
 		mWriteView = findViewById(R.id.write_view);
 		mOrderSpinner = findViewById(R.id.spn_order);
 		mTypeSpinner = findViewById(R.id.spn_type);
+
+		mTvPing = findViewById(R.id.tv_ping);
+		mTvPian = findViewById(R.id.tv_pian);
+		mTvRoma = findViewById(R.id.tv_roma);
+
+		mCbPing = findViewById(R.id.cb_ping);
+		mCbPian = findViewById(R.id.cb_pian);
+		mCbRoma = findViewById(R.id.cb_roma);
+
+		mCbPing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				mTvPing.setVisibility(isChecked ? View.VISIBLE : View.INVISIBLE);
+			}
+		});
+
+		mCbPian.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				mTvPian.setVisibility(isChecked ? View.VISIBLE : View.INVISIBLE);
+			}
+		});
+
+		mCbRoma.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				mTvRoma.setVisibility(isChecked ? View.VISIBLE : View.INVISIBLE);
+			}
+		});
 
 		mOrderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
@@ -98,8 +133,6 @@ public class WSYTActivity extends AppCompatActivity {
 			}
 		});
 
-
-
 		mNextPro = new SequentialNextPro(mPronunciationDataStore.getAll());
 
 		render();
@@ -126,7 +159,9 @@ public class WSYTActivity extends AppCompatActivity {
 	}
 
 	private void show() {
-		mTextView.setText(mCurrent.getPing() + "\n" + mCurrent.getPian() + "\n" + mCurrent.getRoma());
+		mTvPing.setText(mCurrent.getPing());
+		mTvPian.setText(mCurrent.getPian());
+		mTvRoma.setText(mCurrent.getRoma());
 	}
 
 	public void play(View view) {
