@@ -16,21 +16,23 @@ import java.util.Random;
 
 import cn.hjf.lj.R;
 import cn.hjf.lj.wsyt.data.PronunciationDataStore;
+import cn.hjf.lj.wsyt.next.NextPro;
+import cn.hjf.lj.wsyt.next.RandomNextPro;
+import cn.hjf.lj.wsyt.next.SequentialNextPro;
 
 public class WSYTActivity extends AppCompatActivity {
 
 	private Pronunciation mCurrent;
-	private List<Pronunciation> mData = new ArrayList<>();
 
 	private PronunciationDataStore mPronunciationDataStore;
-
-	private Random mRandom = new Random();
 
 	private TextView mTextView;
 
 	private MediaPlayer mMediaPlayer = new MediaPlayer();
 
 	private WriteView mWriteView;
+
+	private NextPro mNextPro;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,7 +44,7 @@ public class WSYTActivity extends AppCompatActivity {
 		mTextView = findViewById(R.id.tv);
 		mWriteView = findViewById(R.id.write_view);
 
-		mData = mPronunciationDataStore.getAll();
+		mNextPro = new SequentialNextPro(mPronunciationDataStore.getAll());
 
 		render();
 	}
@@ -60,7 +62,7 @@ public class WSYTActivity extends AppCompatActivity {
 	}
 
 	private void render() {
-		mCurrent = mData.get(mRandom.nextInt(mData.size()));
+		mCurrent = mNextPro.next();
 
 		show();
 
